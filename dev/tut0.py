@@ -28,6 +28,22 @@ def crop_center(image):
       image, offset_y, offset_x, new_shape, new_shape)
   return image
 
+#Source: https://towardsdatascience.com/fast-neural-style-transfer-in-5-minutes-with-tensorflow-hub-magenta-110b60431dcc
+def img_scaler(image, max_dim = 512):
+
+  # Casts a tensor to a new type.
+  original_shape = tf.cast(tf.shape(image)[:-1], tf.float32)
+
+  # Creates a scale constant for the image
+  scale_ratio = max_dim / max(original_shape)
+
+  # Casts a tensor to a new type.
+  new_shape = tf.cast(original_shape * scale_ratio, tf.int32)
+
+  # Resizes the image based on the scaling constant generated above
+  return tf.image.resize(image, new_shape)
+
+
 @functools.lru_cache(maxsize=None)
 def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
   """Loads and preprocesses images."""
@@ -37,10 +53,12 @@ def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
   # Load and convert to float32 numpy array, add batch dimension, and normalize to range [0, 1].
   img = tf.io.decode_image(
       tf.io.read_file(image_path),
-      channels=3, dtype=tf.float32)[tf.newaxis, ...]
-  img = crop_center(img)
-  img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
-  return img
+      channels=3, dtype=tf.float32)
+  #img = crop_center(img)
+  img = img_scaler(img)
+
+  #img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
+  return img[tf.newaxis, ...]
 
 def show_n(images, titles=('',)):
   n = len(images)
@@ -57,23 +75,10 @@ def show_n(images, titles=('',)):
 
   # @title Load example images  { display-mode: "form" }
 
-#Source: https://towardsdatascience.com/fast-neural-style-transfer-in-5-minutes-with-tensorflow-hub-magenta-110b60431dcc
-def img_scaler(image, max_dim = 512):
 
-  # Casts a tensor to a new type.
-  original_shape = tf.cast(tf.shape(image)[:-1], tf.float32)
 
-  # Creates a scale constant for the image
-  scale_ratio = max_dim / max(original_shape)
-
-  # Casts a tensor to a new type.
-  new_shape = tf.cast(original_shape * scale_ratio, tf.int32)
-
-  # Resizes the image based on the scaling constant generated above
-  return tf.image.resize(image, new_shape)
-
-content_image_url = 'images/tl.jpg' # @param {type:"string"}
-style_image_url = 'images/08.jpg'  # @param {type:"string"}
+content_image_url = 'images/l0.jpg' # @param {type:"string"}
+style_image_url = 'images/e0.jpg'  # @param {type:"string"}
 output_image_size = 384  # @param {type:"integer"}
 
 # The content image size can be arbitrary.
@@ -86,7 +91,7 @@ style_img_size = (256, 256)  # Recommended to keep it at 256.
 content_image = load_image(content_image_url, content_img_size)
 style_image = load_image(style_image_url, style_img_size)
 style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
-show_n([content_image, style_image], ['Content image', 'Style image'])
+#show_n([content_image, style_image], ['Content image', 'Style image'])
 
 # Load TF-Hub module.
 
@@ -102,5 +107,9 @@ stylized_image = outputs[0]
 outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
 stylized_image = outputs
 
+#stylized_image = outputs[0]
+squeezed_image = tf.squeeze(stylized_image)
+tf.keras.preprocessing.image.save_img("test.jpg", squeezed_image)
+
 # Visualize input images and the generated stylized image.
-show_n([content_image, style_image, stylized_image], titles=['Original content image', 'Style image', 'Stylized image'])
+#show_n([content_image, style_image, stylized_image], titles=['Original content image', 'Style image', 'Stylized image'])

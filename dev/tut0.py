@@ -86,5 +86,4 @@ outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
 stylized_image = outputs
 
 # Visualize input images and the generated stylized image.
-
 show_n([content_image, style_image, stylized_image], titles=['Original content image', 'Style image', 'Stylized image'])

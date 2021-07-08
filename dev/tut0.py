@@ -9,6 +9,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu
+
 print("TF Version: ", tf.__version__)
 print("TF-Hub version: ", hub.__version__)
 print("Eager mode enabled: ", tf.executing_eagerly())
@@ -54,6 +56,21 @@ def show_n(images, titles=('',)):
   plt.show()
 
   # @title Load example images  { display-mode: "form" }
+
+#Source: https://towardsdatascience.com/fast-neural-style-transfer-in-5-minutes-with-tensorflow-hub-magenta-110b60431dcc
+def img_scaler(image, max_dim = 512):
+
+  # Casts a tensor to a new type.
+  original_shape = tf.cast(tf.shape(image)[:-1], tf.float32)
+
+  # Creates a scale constant for the image
+  scale_ratio = max_dim / max(original_shape)
+
+  # Casts a tensor to a new type.
+  new_shape = tf.cast(original_shape * scale_ratio, tf.int32)
+
+  # Resizes the image based on the scaling constant generated above
+  return tf.image.resize(image, new_shape)
 
 content_image_url = 'images/tl.jpg' # @param {type:"string"}
 style_image_url = 'images/08.jpg'  # @param {type:"string"}

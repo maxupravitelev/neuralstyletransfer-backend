@@ -5,6 +5,7 @@ import os
 
 import tensorflow as tf
 import tensorflow_hub as hub
+import numpy as np
 
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu
 
@@ -20,16 +21,16 @@ hub_handle = 'models/arbv1'
 hub_module = hub.load(hub_handle)
 
 ## init capture
-frame_width = 1024
-frame_height = 768
+frame_width = 640
+frame_height = 480
 
 cap = cv2.VideoCapture(0)
 
-cap.set(3, 640)
-cap.set(4, 480)
+cap.set(3, frame_width)
+cap.set(4, frame_height)
 
 time.sleep(1)
-fps = 1 / 2
+fps = 1 / 1
 
 #Source: https://towardsdatascience.com/fast-neural-style-transfer-in-5-minutes-with-tensorflow-hub-magenta-110b60431dcc
 def img_scaler(image, max_dim = 512):
@@ -84,6 +85,7 @@ style_img_size = (256, 256)  # Recommended to keep it at 256.
 i = 1
 style_image_url = f"images/f/{i}.jpg"  # @param {type:"string"}
 
+frame_counter = 0
 
 while (cap.isOpened()):
     time.sleep(fps)
@@ -96,9 +98,7 @@ while (cap.isOpened()):
     #print(frame_tensor.shape)
 
     content_image = img_scaler(frame_tensor)
-    print(content_image.shape)
     style_image = load_image(style_image_url, style_img_size)
-    print(style_image.shape)
     style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
     outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
@@ -106,10 +106,13 @@ while (cap.isOpened()):
 
     stylized_image = outputs[0]
     squeezed_image = tf.squeeze(stylized_image)
-    #tf.keras.preprocessing.image.save_img(f"output/k/{i}.jpg", squeezed_image)
+    #tf.keras.preprocessing.image.save_img(f"output/{frame_counter}.jpg", squeezed_image)
 
-    cv2.imshow('frame', squeezed_image)
-    #print(frame.shape)
+    output_image = cv2.cvtColor(squeezed_image.numpy() * 255, cv2.COLOR_RGB2BGR)
+    output_image = cv2.resize(output_image, (frame_width, frame_height))
+    cv2.imshow('frame', output_image.astype(np.uint8))
+    
+    frame_counter += 1
 
     if cv2.waitKey(1) == 27:
       break

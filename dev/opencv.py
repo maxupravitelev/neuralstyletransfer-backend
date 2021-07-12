@@ -17,9 +17,9 @@ while (cap.isOpened()):
     time.sleep(fps)
     _, frame = cap.read()
     cv2.imshow('frame', frame)
-    print(frame.shape)
+    #print(frame.shape)
 
-    if cv2.waitKey(1) == 27:
+    if cv2.waitKey(fps) == 27:
       break
 
 cap.release()

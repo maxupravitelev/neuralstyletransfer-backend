@@ -54,6 +54,8 @@ def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
   img = tf.io.decode_image(
       tf.io.read_file(image_path),
       channels=3, dtype=tf.float32)
+  
+  print(img.shape)
   #img = crop_center(img)
   img = img_scaler(img)
 
@@ -70,7 +72,7 @@ hub_handle = 'models/arbv1'
 hub_module = hub.load(hub_handle)
 
 
-for i in range(47):
+for i in range(1):
 
 
   content_image_url = 'images/k0.jpg' # @param {type:"string"}
@@ -87,7 +89,11 @@ for i in range(47):
   style_img_size = (256, 256)  # Recommended to keep it at 256.
 
   content_image = load_image(content_image_url, content_img_size)
+  print("c")
+  print(content_image[0])
   style_image = load_image(style_image_url, style_img_size)
+  print("s")
+  print(style_image.shape)
   style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
   #outputs = hub_module(content_image, style_image)

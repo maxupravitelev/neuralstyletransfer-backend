@@ -64,14 +64,15 @@ def load_image(image_path):
   return img
 
 output_image_size = 384  # @param {type:"integer"}
-style_img_size = (256, 256)  # Recommended to keep it at 256.
-i = 1
+i = 15
 style_image_url = f"images/f/{i}.jpg"  # @param {type:"string"}
+style_image = load_image(style_image_url)
+style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
 frame_counter = 0
 
 while (cap.isOpened()):
-    time.sleep(fps)
+    #time.sleep(fps)
 
     _, frame = cap.read()
     
@@ -79,8 +80,6 @@ while (cap.isOpened()):
     frame_tensor = tf.convert_to_tensor(frame, dtype=tf.float32)
 
     content_image = scale_image(frame_tensor)
-    style_image = load_image(style_image_url, style_img_size)
-    style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
     outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
 

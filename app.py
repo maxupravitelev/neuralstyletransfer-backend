@@ -11,8 +11,8 @@ import sys
 
 # flask imports
 from flask import Response
-from flask import Flask, request
-#from flask_cors import CORS
+from flask import Flask, request, send_file
+from flask_cors import CORS
 from flask import jsonify
 
 
@@ -33,7 +33,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu
 #########################################################################################
 ### init flask
 app = Flask(__name__)
-#CORS(app)
+CORS(app)
 
 #########################################################################################
 
@@ -77,18 +77,13 @@ hub_module = hub.load(hub_handle)
 #########################################################################################
 ### API routes
 
-# route for steering the vehicle
-@app.route('/images', methods=['POST'])
+@app.route('/api/images', methods=['POST'])
 def post_images():
     
     global load_image, hub_module
 
-    print(request.files)
-
-    images = request.files.to_dict() 
-
-    images["filec"].save("cc.jpg")    # TODO: pass img directly without saving on server
-    images["fileg"].save("gg.jpg")
+    request.files["contentImage"].save("cc.jpg")    # TODO: pass img directly without saving on server
+    request.files["styleImage"].save("gg.jpg")
 
     content_image_url = 'cc.jpg' # @param {type:"string"}
     style_image_url = 'gg.jpg'  # @param {type:"string"}
@@ -110,7 +105,14 @@ def post_images():
     squeezed_image = tf.squeeze(stylized_image)
     tf.keras.preprocessing.image.save_img("1.jpg", squeezed_image)
 
-    return jsonify("message")
+    # response = jsonify("message")
+
+    return send_file("1.jpg", mimetype='image/jpg')
+
+
+@app.route('/api/images/generated_output', methods=['GET'])
+def get_generated_output():
+    return send_file("1.jpg", mimetype='image/jpg')
 
 # route for generated video ouput
 @app.route("/")

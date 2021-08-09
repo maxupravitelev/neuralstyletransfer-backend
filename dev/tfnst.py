@@ -63,10 +63,7 @@ def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
   return img[tf.newaxis, ...]
 
 
-
-
-# Load TF-Hub module.
-
+# Load TF-Hub module
 #hub_handle = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
 hub_handle = 'models/arbv1'
 hub_module = hub.load(hub_handle)

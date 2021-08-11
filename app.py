@@ -12,7 +12,7 @@ import sys
 # flask imports
 from flask import Response
 from flask import Flask, request, send_file
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask import jsonify
 
 import os
@@ -31,7 +31,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu if necessary
 ### init flask
 app = Flask(__name__)
 CORS(app)
-
+app.config['CORS_HEADERS'] = 'Content-Type'
 #########################################################################################
 
 #########################################################################################
@@ -63,44 +63,56 @@ hub_module = hub.load(hub_handle)
 #########################################################################################
 ### API routes
 
-@app.route('/api/images', methods=['POST'])
+@app.route('/api/images', methods=['POST', 'OPTIONS', 'GET'])
+@cross_origin()
 def post_images():
-    
-    global load_image
+    print(request.method)
+    if request.method == 'POST':
 
-    # create new folder for handling multiple concurrent request
-    # TODO
+        global load_image
 
-    # save received images for processing
-    request.files["contentImage"].save("contentImage.jpg")    
-    request.files["styleImage"].save("styleImage.jpg")
+        # create new folder for handling multiple concurrent request
+        # TODO
 
-    # load images 
-    content_image_url = 'contentImage.jpg' # @param {type:"string"}
-    style_image_url = 'styleImage.jpg'  # @param {type:"string"}
-    output_image_size = 384  # @param {type:"integer"}
+        # save received images for processing
+        request.files["contentImage"].save("contentImage.jpg")    
+        request.files["styleImage"].save("styleImage.jpg")
 
-    # The content image size can be arbitrary.
-    content_img_size = (output_image_size, output_image_size)
-    # The style prediction model was trained with image size 256 and it's the 
-    # recommended image size for the style image (though, other sizes work as 
-    # well but will lead to different results).
-    style_img_size = (256, 256)  # Recommended to keep it at 256.
+        # load images 
+        content_image_url = 'contentImage.jpg' # @param {type:"string"}
+        style_image_url = 'styleImage.jpg'  # @param {type:"string"}
+        output_image_size = 384  # @param {type:"integer"}
 
-    content_image = load_image(content_image_url, content_img_size)
-    style_image = load_image(style_image_url, style_img_size)
-    style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
+        # The content image size can be arbitrary.
+        content_img_size = (output_image_size, output_image_size)
+        # The style prediction model was trained with image size 256 and it's the 
+        # recommended image size for the style image (though, other sizes work as 
+        # well but will lead to different results).
+        style_img_size = (256, 256)  # Recommended to keep it at 256.
 
-    outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
-    stylized_image = outputs[0]
-    squeezed_image = tf.squeeze(stylized_image)
-    tf.keras.preprocessing.image.save_img("1.jpg", squeezed_image)
+        content_image = load_image(content_image_url, content_img_size)
+        style_image = load_image(style_image_url, style_img_size)
+        style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
-    return jsonify("message")
-    #return send_file("1.jpg", mimetype='image/jpg')
+        outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
+        stylized_image = outputs[0]
+        squeezed_image = tf.squeeze(stylized_image)
+        tf.keras.preprocessing.image.save_img("1.jpg", squeezed_image)
+
+        return jsonify("message")
+        #return send_file("1.jpg", mimetype='image/jpg')
+
+    # handle preflight requests send due to CORS policy
+    if request.method == 'OPTIONS':
+        return jsonify("success")
+
+    if request.method == 'GET':
+        return jsonify("test ping")
+
 
 # return generated output on request
 @app.route('/api/images/generated_output', methods=['GET'])
+@cross_origin()
 def get_generated_output():
     return send_file("1.jpg", mimetype='image/jpg')
 
@@ -124,7 +136,7 @@ def get_image():
 ### start the flask app
 if __name__ == '__main__':
     try:
-        app.run(host="0.0.0.0", port="6475", 
+        app.run(host="0.0.0.0", port="6975", 
                 #ssl_context='adhoc', 
                 debug=True,
                 threaded=True, use_reloader=False)

@@ -42,10 +42,9 @@ print("Eager mode enabled: ", tf.executing_eagerly())
 print("GPU available: ", tf.config.list_physical_devices('GPU'))
 
 
-def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
+def load_image(image_path, image_size=(256, 256), preserve_aspect_ratio=True):
   """Loads and preprocesses images."""
 
-  image_path = image_url
   # Load and convert to float32 numpy array, add batch dimension, and normalize to range [0, 1]
   img = tf.io.decode_image(
       tf.io.read_file(image_path),
@@ -54,7 +53,8 @@ def load_image(image_url, image_size=(256, 256), preserve_aspect_ratio=True):
   img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
   return img
 
-hub_handle = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
+#hub_handle = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
+hub_handle = 'models/arbv1'
 hub_module = hub.load(hub_handle)
 
 #########################################################################################
@@ -112,7 +112,7 @@ def post_images():
 
 # return generated output on request
 @app.route('/api/images/generated_output', methods=['GET'])
-@cross_origin()
+#@cross_origin()
 def get_generated_output():
     return send_file("1.jpg", mimetype='image/jpg')
 

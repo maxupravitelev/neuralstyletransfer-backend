@@ -27,6 +27,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu if necessary
 # import modules for creating image file strings for storage
 import time
 import calendar
+from random import seed, random
 #########################################################################################
 
 
@@ -77,12 +78,15 @@ def post_images():
         # create new folder for handling multiple concurrent request
         # TODO
 
+        # create timestamp based strings for allowings multiple concurrent request
         timestamp = calendar.timegm(time.gmtime())
-        print(timestamp)
+        seed(timestamp)
+        random_number = int(random() * 1000)
+        filename_stamp = str(timestamp) + str(random_number)
 
         # create paths for image storage
-        content_image_path = f"{timestamp}_content_image.jpg" # @param {type:"string"}
-        style_image_path = f"{timestamp}_style_image.jpg"  # @param {type:"string"}
+        content_image_path = f"{filename_stamp}_content_image.jpg" # @param {type:"string"}
+        style_image_path = f"{filename_stamp}_style_image.jpg"  # @param {type:"string"}
 
         # save received images for processing
         request.files["contentImage"].save(content_image_path)    

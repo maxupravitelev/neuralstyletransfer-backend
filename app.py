@@ -5,7 +5,6 @@
 
 #########################################################################################
 ### handle imports
-import time
 #import json
 import sys
 
@@ -24,6 +23,10 @@ import tensorflow as tf
 import tensorflow_hub as hub
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    # disable gpu if necessary
 
+
+# import modules for creating image file strings for storage
+import time
+import calendar
 #########################################################################################
 
 
@@ -74,24 +77,27 @@ def post_images():
         # create new folder for handling multiple concurrent request
         # TODO
 
-        # save received images for processing
-        request.files["contentImage"].save("contentImage.jpg")    
-        request.files["styleImage"].save("styleImage.jpg")
+        timestamp = calendar.timegm(time.gmtime())
+        print(timestamp)
 
-        # load images 
-        content_image_url = 'contentImage.jpg' # @param {type:"string"}
-        style_image_url = 'styleImage.jpg'  # @param {type:"string"}
-        output_image_size = 384  # @param {type:"integer"}
+        # create paths for image storage
+        content_image_path = f"{timestamp}_content_image.jpg" # @param {type:"string"}
+        style_image_path = f"{timestamp}_style_image.jpg"  # @param {type:"string"}
+
+        # save received images for processing
+        request.files["contentImage"].save(content_image_path)    
+        request.files["styleImage"].save(style_image_path)
 
         # The content image size can be arbitrary.
+        output_image_size = 384  # @param {type:"integer"}
         content_img_size = (output_image_size, output_image_size)
         # The style prediction model was trained with image size 256 and it's the 
         # recommended image size for the style image (though, other sizes work as 
         # well but will lead to different results).
         style_img_size = (256, 256)  # Recommended to keep it at 256.
 
-        content_image = load_image(content_image_url, content_img_size)
-        style_image = load_image(style_image_url, style_img_size)
+        content_image = load_image(content_image_path, content_img_size)
+        style_image = load_image(style_image_path, style_img_size)
         style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='SAME')
 
         outputs = hub_module(tf.constant(content_image), tf.constant(style_image))

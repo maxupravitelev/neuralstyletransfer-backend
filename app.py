@@ -61,11 +61,25 @@ def load_image(image_path, image_size=(256, 256), preserve_aspect_ratio=True):
 hub_handle = 'models/arbv1'
 hub_module = hub.load(hub_handle)
 
+
+# create timestamp based strings for allowings multiple concurrent request
+def create_filestamp():
+
+    timestamp = calendar.timegm(time.gmtime())
+
+    seed(timestamp)
+
+    random_number = int(random() * 1000)
+
+    return str(timestamp) + str(random_number)
+
 #########################################################################################
 
 
 #########################################################################################
 ### API routes
+
+
 
 @app.route('/api/images', methods=['POST', 'OPTIONS', 'GET'])
 @cross_origin()
@@ -78,11 +92,7 @@ def post_images():
         # create new folder for handling multiple concurrent request
         # TODO
 
-        # create timestamp based strings for allowings multiple concurrent request
-        timestamp = calendar.timegm(time.gmtime())
-        seed(timestamp)
-        random_number = int(random() * 1000)
-        filename_stamp = str(timestamp) + str(random_number)
+        filename_stamp = create_filestamp()
 
         # create paths for image storage
         content_image_path = f'{filename_stamp}_content_image.jpg' # @param {type:'string'}

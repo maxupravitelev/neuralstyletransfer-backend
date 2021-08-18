@@ -95,8 +95,8 @@ def post_images():
         filename_stamp = create_filestamp()
 
         # create paths for image storage
-        content_image_path = f'{filename_stamp}_content_image.jpg' # @param {type:'string'}
-        style_image_path = f'{filename_stamp}_style_image.jpg'  # @param {type:'string'}
+        content_image_path = f'images/{filename_stamp}_content_image.jpg' # @param {type:'string'}
+        style_image_path = f'images/{filename_stamp}_style_image.jpg'  # @param {type:'string'}
 
         # save received images for processing
         request.files['contentImage'].save(content_image_path)    
@@ -117,7 +117,7 @@ def post_images():
         outputs = hub_module(tf.constant(content_image), tf.constant(style_image))
         stylized_image = outputs[0]
         squeezed_image = tf.squeeze(stylized_image)
-        tf.keras.preprocessing.image.save_img(f'{filename_stamp}.jpg', squeezed_image)
+        tf.keras.preprocessing.image.save_img(f'images/{filename_stamp}.jpg', squeezed_image)
 
         return jsonify(filename_stamp)
         #return send_file('1.jpg', mimetype='image/jpg')
@@ -135,7 +135,7 @@ def post_images():
 #@cross_origin()
 def get_generated_output():
     filename = request.args.get('filename')
-    return send_file(f'{filename}.jpg', mimetype='image/jpg')
+    return send_file(f'images/{filename}.jpg', mimetype='image/jpg')
 
 
 

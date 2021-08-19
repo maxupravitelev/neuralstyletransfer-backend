@@ -5,24 +5,20 @@
 
 #########################################################################################
 ### handle imports
-#import json
 import sys
 
 # flask imports
-from flask import Response
 from flask import Flask, request, send_file
 from flask_cors import CORS, cross_origin
 from flask import jsonify
 
-import os
-
-from matplotlib import gridspec
-import matplotlib.pylab as plt
-import numpy as np
+# tensorflow imports
 import tensorflow as tf
 import tensorflow_hub as hub
-os.environ['CUDA_VISIBLE_DEVICES']='-1'    # disable gpu if necessary
 
+# disable gpu if necessary
+import os
+os.environ['CUDA_VISIBLE_DEVICES']='-1'    
 
 # import modules for creating image file strings for storage
 import time
@@ -46,9 +42,8 @@ print('Eager mode enabled: ', tf.executing_eagerly())
 print('GPU available: ', tf.config.list_physical_devices('GPU'))
 
 
-def load_image(image_path, image_size=(256, 256), preserve_aspect_ratio=True):
-  '''Loads and preprocesses images.'''
-
+def load_image(image_path, image_size=(256, 256)):
+  
   # Load and convert to float32 numpy array, add batch dimension, and normalize to range [0, 1]
   img = tf.io.decode_image(
       tf.io.read_file(image_path),
@@ -79,8 +74,7 @@ def create_filestamp():
 #########################################################################################
 ### API routes
 
-
-
+# route for image uploading and processing
 @app.route('/api/images', methods=['POST', 'OPTIONS', 'GET'])
 @cross_origin()
 def post_images():
@@ -88,9 +82,6 @@ def post_images():
     if request.method == 'POST':
 
         global load_image
-
-        # create new folder for handling multiple concurrent request
-        # TODO
 
         filename_stamp = create_filestamp()
 
@@ -138,15 +129,12 @@ def get_generated_output():
     return send_file(f'images/{filename}.jpg', mimetype='image/jpg')
 
 
-
 # route for req testing
 @app.route('/')
 def get_image():
 
-
     message = 'ping'
     print('ping')
-
 
     return jsonify(message)
 

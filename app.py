@@ -18,7 +18,11 @@ import tensorflow_hub as hub
 
 # disable gpu if necessary
 import os
-os.environ['CUDA_VISIBLE_DEVICES']='-1'    
+os.environ['CUDA_VISIBLE_DEVICES']='-1'  
+
+# import module for handling env vars
+from dotenv import load_dotenv
+load_dotenv()
 
 # import modules for creating image file strings for storage
 import time
@@ -41,6 +45,11 @@ print('TF-Hub version: ', hub.__version__)
 print('Eager mode enabled: ', tf.executing_eagerly())
 print('GPU available: ', tf.config.list_physical_devices('GPU'))
 
+# load model from tensorflow hub, set variable in .env for handling local and remote urls
+hub_handle = os.getenv('TF_HUB_HANDLE')
+print(hub_handle)
+hub_module = hub.load(hub_handle)
+
 
 def load_image(image_path, image_size=(256, 256)):
   
@@ -51,10 +60,6 @@ def load_image(image_path, image_size=(256, 256)):
 
   img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
   return img
-
-#hub_handle = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
-hub_handle = 'models/arbv1'
-hub_module = hub.load(hub_handle)
 
 
 # create timestamp based strings for allowings multiple concurrent request

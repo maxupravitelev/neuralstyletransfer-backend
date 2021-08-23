@@ -17,9 +17,10 @@ from flask import jsonify
 import tensorflow as tf
 import tensorflow_hub as hub
 
-# import module for handling env vars
-from dotenv import load_dotenv
-load_dotenv()
+# import module for handling .env if env vars are not set
+if not os.environ.get("TF_HUB_HANDLE"):
+    from dotenv import load_dotenv
+    load_dotenv()
 
 # import modules for creating image file strings for storage
 import time
@@ -45,8 +46,10 @@ print('GPU available: ', tf.config.list_physical_devices('GPU'))
 # disable gpu if necessary
 os.environ['CUDA_VISIBLE_DEVICES']='-1'  
 
-# load model from tensorflow hub, set variable in .env for handling local and remote urls
-hub_handle = os.getenv('TF_HUB_HANDLE')
+# load model from tensorflow hub, set variable in .env file or env var for handling local and remote urls
+hub_handle = os.environ.get("TF_HUB_HANDLE")
+if not hub_handle:
+    hub_handle = os.getenv('TF_HUB_HANDLE')
 print(hub_handle)
 hub_module = hub.load(hub_handle)
 

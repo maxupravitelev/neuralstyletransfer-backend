@@ -131,7 +131,7 @@ def get_generated_output():
 
 # route for req testing
 @app.route('/')
-def get_image():
+def get_test_ping():
 
     message = 'ping'
     print('ping')
@@ -150,7 +150,6 @@ if __name__ == '__main__':
                 #ssl_context='adhoc', 
                 debug=True,
                 threaded=True, use_reloader=False)
-        #socketio.run(app, host='0.0.0.0', port=6475, debug=True)
     except KeyboardInterrupt:
         #check for exit
         time.sleep(1)

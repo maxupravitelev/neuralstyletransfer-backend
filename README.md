@@ -1,5 +1,6 @@
-# nst
+# neuralstyletransfer-backend
 
+*Disclaimer: Copyright issues, GDPR compliance and security are not adressed in this repo (yet) - it is meant to be used as a boilerplate and not meant to end up anywhere near produciton in this state.*
 
 # installation
 

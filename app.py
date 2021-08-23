@@ -6,6 +6,7 @@
 #########################################################################################
 ### handle imports
 import sys
+import os
 
 # flask imports
 from flask import Flask, request, send_file
@@ -15,10 +16,6 @@ from flask import jsonify
 # tensorflow imports
 import tensorflow as tf
 import tensorflow_hub as hub
-
-# disable gpu if necessary
-import os
-os.environ['CUDA_VISIBLE_DEVICES']='-1'  
 
 # import module for handling env vars
 from dotenv import load_dotenv
@@ -44,6 +41,9 @@ print('TF Version: ', tf.__version__)
 print('TF-Hub version: ', hub.__version__)
 print('Eager mode enabled: ', tf.executing_eagerly())
 print('GPU available: ', tf.config.list_physical_devices('GPU'))
+
+# disable gpu if necessary
+os.environ['CUDA_VISIBLE_DEVICES']='-1'  
 
 # load model from tensorflow hub, set variable in .env for handling local and remote urls
 hub_handle = os.getenv('TF_HUB_HANDLE')

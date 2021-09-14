@@ -134,7 +134,9 @@ def post_images():
 #@cross_origin()
 def get_generated_output():
     filename = request.args.get('filename')
-    return send_file(f'images/{filename}.jpg', mimetype='image/jpg')
+    path = f'images/{filename}.jpg'
+    print(path)
+    return send_file(path, mimetype='image/jpg')
 
 
 # route for req testing

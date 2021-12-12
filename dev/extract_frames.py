@@ -2,7 +2,7 @@ import os
 import cv2
 
 
-filename = ''
+filename = 'cat.mp4'
 cap = cv2.VideoCapture(filename)
 
 filename_string_length = len(filename)
